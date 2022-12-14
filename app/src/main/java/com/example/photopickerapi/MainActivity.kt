@@ -1,5 +1,6 @@
 package com.example.photopickerapi
 
+import android.Manifest
 import android.content.Intent
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
@@ -9,7 +10,9 @@ import android.util.Log
 import android.widget.Button
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContract
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.result.launch
 
 class MainActivity : AppCompatActivity() {
 
@@ -50,8 +53,8 @@ class MainActivity : AppCompatActivity() {
 
         val photoPickerButton: Button = findViewById(R.id.photoPickerButton)
         photoPickerButton.setOnClickListener {
-            handleMultiplePhotoPickerLaunch(pickMultipleMedia)
-//            handlePhotoPickerLaunch(pickMedia)
+            handlePhotoPickerLaunch(pickMedia)
+//            handleMultiplePhotoPickerLaunch(pickMultipleMedia)
         }
 // Include only one of the following calls to launch(), depending on the types
 // of media that you want to allow the user to choose from.
@@ -97,6 +100,7 @@ class MainActivity : AppCompatActivity() {
             // EXTRA_PICK_IMAGES_MAX intent extra.
         } else {
             Log.d("mLog", "Not Available")
+            requestPermission.launch(Manifest.permission.WRITE_EXTERNAL_STORAGE)
             // Consider implementing fallback functionality so that users can still
             // select images and videos.
         }
@@ -116,6 +120,25 @@ class MainActivity : AppCompatActivity() {
             // Consider implementing fallback functionality so that users can still
             // select images and videos.
         }
+    }
+
+    private val requestPermission = registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
+        if (isGranted) {
+//            pickContentLegacyDocumentTree.launch()
+            pickContentLegacyMediaStore.launch()
+            Log.d("mLog", "Granted")
+        } else {
+            Log.d("mLog", "Not Granted")
+        }
+    }
+
+
+    private val pickContentLegacyDocumentTree = registerForActivityResult(PickContentLegacyDocumentTree()) {
+        Log.d("mLog", "Uri $it")
+    }
+
+    private val pickContentLegacyMediaStore = registerForActivityResult(PickContentLegacyMediaStore()) {
+        Log.d("mLog", "Uri $it")
     }
 
 }
